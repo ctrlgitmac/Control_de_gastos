@@ -1,13 +1,211 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<html>
+<head>
+  <title>Control de Gastos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Metadatos del Manifesto de la aplicación -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/png" sizes="192x192" href="./imgs/icono-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./imgs/icono-512x512.png">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Agrega tus gastos aquí</h4>
+        <form>
+          <div class="form-group">
+            <label for="concepto">Concepto:</label>
+            <input type="text" class="form-control" id="concepto">
+          </div>
+          <div class="form-group">
+            <label for="monto">Monto:</label>
+            <input type="number" class="form-control" id="monto">
+          </div>
+          <button type="button" class="btn btn-primary" id="agregarGasto">Agregar gasto</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">Saldo Total</h5>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">S/</span>
+                  </div>
+                  <input type="number" class="form-control" id="saldoTotal">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h4>Listado de gastos</h4>
+        <ul id="listaGastos" class="list-group">
+        </ul>
+        <button type="button" class="btn btn-success" id="guardarGastos">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var saldoTotalInput = document.getElementById('saldoTotal');
+    var listaGastos = document.getElementById('listaGastos');
+    var agregarGastoBtn = document.getElementById('agregarGasto');
+    var guardarGastosBtn = document.getElementById('guardarGastos');
+
+    var saldoTotal = 0;
+
+    saldoTotalInput.addEventListener('change', function() {
+      saldoTotal = parseFloat(saldoTotalInput.value);
+    });
+
+    agregarGastoBtn.addEventListener('click', function() {
+      var concepto = document.getElementById('concepto').value;
+      var monto = parseFloat(document.getElementById('monto').value);
+
+      if (concepto && monto) {
+        if (monto > 100) {
+          alert('¡Cuidado! Has realizado un gasto mayor a 100 al día.');
+        }
+        var nuevoGasto = document.createElement('li');
+        nuevoGasto.className = 'list-group-item';
+
+        var gastoContent = document.createElement('div');
+        gastoContent.className = 'd-flex justify-content-between align-items-center';
+
+        var gastoText = document.createElement('strong');
+        gastoText.textContent = concepto + ': S/' + monto.toFixed(2);
+
+        var adjuntarImagenBtn = document.createElement('button');
+        adjuntarImagenBtn.className = 'btn btn-primary';
+        adjuntarImagenBtn.textContent = 'Adjuntar imagen';
+
+            adjuntarImagenBtn.addEventListener('click', function() {
+      var fileInput = document.createElement('input');
+      fileInput.type = 'file';
+
+      fileInput.addEventListener('change', function() {
+        var selectedFiles = fileInput.files;
+
+        for (var i = 0; i < selectedFiles.length; i++) {
+          var selectedFile = selectedFiles[i];
+          var fileName = selectedFile.name;
+
+          var fileContainer = document.createElement('div');
+          fileContainer.className = 'file-container';
+
+          var fileNameContainer = document.createElement('span');
+          fileNameContainer.textContent = fileName;
+          fileNameContainer.style.display = 'block';
+
+          var deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Borrar';
+          deleteButton.className = 'btn btn-danger';
+          deleteButton.addEventListener('click', function() {
+            // Lógica para borrar el archivo de imagen
+            fileContainer.remove();
+          });
+
+          fileContainer.appendChild(fileNameContainer);
+          fileContainer.appendChild(deleteButton);
+
+          nuevoGasto.appendChild(fileContainer);
+        }
+      });
+
+      fileInput.click();
+    });
+
+    gastoContent.appendChild(gastoText);
+    gastoContent.appendChild(adjuntarImagenBtn);
+    nuevoGasto.appendChild(gastoContent);
+
+    listaGastos.appendChild(nuevoGasto);
+
+    saldoTotal -= monto;
+    saldoTotalInput.value = saldoTotal.toFixed(2);
+    actualizarSaldoTotal();
+
+    document.getElementById('concepto').value = '';
+    document.getElementById('monto').value = '';
+  }
+});
+
+guardarGastosBtn.addEventListener('click', function() {
+  var gastos = [];
+  var gastoItems = listaGastos.getElementsByClassName('list-group-item');
+
+  for (var i = 0; i < gastoItems.length; i++) {
+    var gastoItem = gastoItems[i];
+    var concepto = gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[0];
+    var monto = parseFloat(gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[1].substring(2));
+
+    var fileContainers = gastoItem.getElementsByClassName('file-container');
+    var imagenes = [];
+
+    for (var j = 0; j < fileContainers.length; j++) {
+      var fileName = fileContainers[j].getElementsByTagName('span')[0].textContent;
+      imagenes.push(fileName);
+    }
+
+    var gasto = {
+      concepto: concepto,
+      monto: monto,
+      imagenes: imagenes
+    };
+
+    gastos.push(gasto);
+  }
+
+  // Enviar los datos mediante Ajax al archivo PHP para guardar los gastos en la base de datos MySQL
+  $.ajax({
+    url: 'guardar_gasto.php',
+    method: 'POST',
+    data: { gastos: JSON.stringify(gastos) },
+    success: function(response) {
+      // Si la respuesta del servidor es exitosa, mostrar un mensaje al usuario
+      alert('Los gastos se guardaron correctamente.');
+
+      // Actualizar el saldo total y lista de gastos si es necesario
+      // ...
+    },
+    error: function(xhr, status, error) {
+      // Si ocurrió un error en la solicitud, mostrar un mensaje de error al usuario
+      alert('Error al guardar los gastos');
+      console.log(error);
+    }
+  });
+});
+
+function actualizarSaldoTotal() {
+  saldoTotal = parseFloat(saldoTotalInput.value);
+  saldoTotalInput.value = saldoTotal.toFixed(2);
+
+        if (saldoTotal < 0) {
+        saldoTotalInput.style.color = 'red';
+      } else {
+        saldoTotalInput.style.color = 'black';
+      }
+    }
+
+    // Register the service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function(error) {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
 </html>
