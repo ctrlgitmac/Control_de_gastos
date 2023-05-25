@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/control-g',
+  base: 'Control_de_gastos/control-g',
   plugins: [vue()],
   resolve: {
     alias: {
