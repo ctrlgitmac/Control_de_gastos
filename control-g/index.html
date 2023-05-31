@@ -13,186 +13,263 @@
   <link rel="icon" type="image/png" sizes="512x512" href="./imgs/icono-512x512.png">
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <h4>Agrega tus gastos aqu&iacute;</h4>
-        <form>
-          <div class="form-group">
-            <label for="concepto">Concepto:</label>
-            <input type="text" class="form-control" id="concepto">
-          </div>
-          <div class="form-group">
-            <label for="monto">Monto:</label>
-            <input type="number" class="form-control" id="monto">
-          </div>
-          <button type="button" class="btn btn-primary" id="agregarGasto">Agregar gasto</button>
-        </form>
-      </div>
-      <div class="col-md-6">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="card mb-4">
-              <div class="card-body">
-                <h5 class="card-title">Saldo Total</h5>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">S/</span>
+  <div id="pagina1" class="pagina">
+    <button onclick="cambiarPagina(2)">INGRESOS</button>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4">
+                <div class="card-body">
+                  <h5 class="card-title">Saldo Total</h5>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">S/</span>
+                    </div>
+                    <input type="number" class="form-control" id="saldoTotal1">
                   </div>
-                  <input type="number" class="form-control" id="saldoTotal">
                 </div>
               </div>
             </div>
           </div>
+          <h4>GASTOS</h4>
+            <button type="button" class="btn btn-primary" onclick="agregarGastoPopup(1)">Agregar gasto</button>
+          <br><br>
+          <h4>Listado de gastos</h4>
+          <ul id="listaGastos1" class="list-group">
+          </ul>
+          <button type="button" class="btn btn-success" onclick="guardarGastos(1)">Guardar</button>
         </div>
-        <h4>Listado de gastos</h4>
-        <ul id="listaGastos" class="list-group">
-        </ul>
-        <button type="button" class="btn btn-success" id="guardarGastos">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pagina2" class="pagina">
+    <button onclick="cambiarPagina(1)">GASTOS</button>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4">
+                <div class="card-body">
+                  <h5 class="card-title">Saldo Total</h5>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">S/</span>
+                    </div>
+                    <input type="number" class="form-control" id="saldoTotal2">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h4>INGRESOS</h4>
+            <button type="button" class="btn btn-primary" onclick="agregarGastoPopup(2)">Agregar ingreso</button>
+          <br><br>
+          <h4>Listado de ingresos</h4>
+          <ul id="listaGastos2" class="list-group">
+          </ul>
+          <button type="button" class="btn btn-success" onclick="guardarGastos(2)">Guardar</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    var saldoTotalInput = document.getElementById('saldoTotal');
-    var listaGastos = document.getElementById('listaGastos');
-    var agregarGastoBtn = document.getElementById('agregarGasto');
-    var guardarGastosBtn = document.getElementById('guardarGastos');
+    function cambiarPagina(pagina) {
+      var paginas = document.getElementsByClassName("pagina");
+      for (var i = 0; i < paginas.length; i++) {
+        paginas[i].style.display = "none";
+      }
+      document.getElementById("pagina" + pagina).style.display = "block";
+    }
+    cambiarPagina(1); // Mostrar la primera página al cargar la página
 
-    var saldoTotal = 0;
+    var saldoTotal1Input = document.getElementById('saldoTotal1');
+    var listaGastos1 = document.getElementById('listaGastos1');
+    var agregarGasto1Btn = document.getElementById('agregarGasto1');
+    var guardarGastos1Btn = document.getElementById('guardarGastos1');
 
-    saldoTotalInput.addEventListener('change', function() {
-      saldoTotal = parseFloat(saldoTotalInput.value);
+    var saldoTotal2Input = document.getElementById('saldoTotal2');
+    var listaGastos2 = document.getElementById('listaGastos2');
+    var agregarGasto2Btn = document.getElementById('agregarGasto2');
+    var guardarGastos2Btn = document.getElementById('guardarGastos2');
+
+    var saldoTotal1 = 0;
+    var saldoTotal2 = 0;
+
+    saldoTotal1Input.addEventListener('change', function() {
+      saldoTotal1 = parseFloat(saldoTotal1Input.value);
     });
 
-    agregarGastoBtn.addEventListener('click', function() {
-      var concepto = document.getElementById('concepto').value;
-      var monto = parseFloat(document.getElementById('monto').value);
+    saldoTotal2Input.addEventListener('change', function() {
+      saldoTotal2 = parseFloat(saldoTotal2Input.value);
+    });
 
-      if (concepto && monto) {
-        if (monto > 100) {
-          alert('¡Cuidado! Has realizado un gasto mayor a 100 al dia.');
-        }
-        var nuevoGasto = document.createElement('li');
-        nuevoGasto.className = 'list-group-item';
+    function agregarGastoPopup(pagina) {
+    var concepto = prompt('Concepto:');
+    var monto = parseFloat(prompt('Monto:'));
 
-        var gastoContent = document.createElement('div');
-        gastoContent.className = 'd-flex justify-content-between align-items-center';
+    if (concepto && monto) {
+      var nuevoGasto = document.createElement('li');
+      nuevoGasto.className = 'list-group-item';
 
-        var gastoText = document.createElement('strong');
-        gastoText.textContent = concepto + ': S/' + monto.toFixed(2);
+      var gastoContent = document.createElement('div');
+      gastoContent.className = 'd-flex justify-content-between align-items-center';
 
-        var adjuntarImagenBtn = document.createElement('button');
-        adjuntarImagenBtn.className = 'btn btn-primary';
-        adjuntarImagenBtn.textContent = 'Adjuntar imagen';
+      var gastoText = document.createElement('strong');
+      gastoText.textContent = concepto + ': S/' + monto.toFixed(2);
 
-            adjuntarImagenBtn.addEventListener('click', function() {
-      var fileInput = document.createElement('input');
-      fileInput.type = 'file';
+      var adjuntarImagenBtn = document.createElement('button');
+      adjuntarImagenBtn.className = 'btn btn-primary';
+      adjuntarImagenBtn.textContent = 'Adjuntar imagen';
 
-      fileInput.addEventListener('change', function() {
-        var selectedFiles = fileInput.files;
+      adjuntarImagenBtn.addEventListener('click', function() {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
 
-        for (var i = 0; i < selectedFiles.length; i++) {
-          var selectedFile = selectedFiles[i];
-          var fileName = selectedFile.name;
+        fileInput.addEventListener('change', function() {
+          var selectedFiles = fileInput.files;
 
-          var fileContainer = document.createElement('div');
-          fileContainer.className = 'file-container';
+          for (var i = 0; i < selectedFiles.length; i++) {
+            var selectedFile = selectedFiles[i];
+            var fileName = selectedFile.name;
 
-          var fileNameContainer = document.createElement('span');
-          fileNameContainer.textContent = fileName;
-          fileNameContainer.style.display = 'block';
+            var fileContainer = document.createElement('div');
+            fileContainer.className = 'file-container';
 
-          var deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Borrar';
-          deleteButton.className = 'btn btn-danger';
-          deleteButton.addEventListener('click', function() {
-            // Lógica para borrar el archivo de imagen
-            fileContainer.remove();
-          });
+            var fileNameContainer = document.createElement('span');
+            fileNameContainer.textContent = fileName;
+            fileNameContainer.style.display = 'block';
 
-          fileContainer.appendChild(fileNameContainer);
-          fileContainer.appendChild(deleteButton);
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Borrar';
+            deleteButton.className = 'btn btn-danger';
+            deleteButton.addEventListener('click', function() {
+              // Lógica para borrar el archivo de imagen
+              fileContainer.remove();
+            });
 
-          nuevoGasto.appendChild(fileContainer);
-        }
+            fileContainer.appendChild(fileNameContainer);
+            fileContainer.appendChild(deleteButton);
+
+            nuevoGasto.appendChild(fileContainer);
+          }
+        });
+
+        fileInput.click();
       });
 
-      fileInput.click();
-    });
+      gastoContent.appendChild(gastoText);
+      gastoContent.appendChild(adjuntarImagenBtn);
+      nuevoGasto.appendChild(gastoContent);
 
-    gastoContent.appendChild(gastoText);
-    gastoContent.appendChild(adjuntarImagenBtn);
-    nuevoGasto.appendChild(gastoContent);
-
-    listaGastos.appendChild(nuevoGasto);
-
-    saldoTotal -= monto;
-    saldoTotalInput.value = saldoTotal.toFixed(2);
-    actualizarSaldoTotal();
-
-    document.getElementById('concepto').value = '';
-    document.getElementById('monto').value = '';
-  }
-});
-
-guardarGastosBtn.addEventListener('click', function() {
-  var gastos = [];
-  var gastoItems = listaGastos.getElementsByClassName('list-group-item');
-
-  for (var i = 0; i < gastoItems.length; i++) {
-    var gastoItem = gastoItems[i];
-    var concepto = gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[0];
-    var monto = parseFloat(gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[1].substring(2));
-
-    var fileContainers = gastoItem.getElementsByClassName('file-container');
-    var imagenes = [];
-
-    for (var j = 0; j < fileContainers.length; j++) {
-      var fileName = fileContainers[j].getElementsByTagName('span')[0].textContent;
-      imagenes.push(fileName);
+      if (pagina === 1) {
+        listaGastos1.appendChild(nuevoGasto);
+        saldoTotal1 -= monto;
+        saldoTotal1Input.value = saldoTotal1.toFixed(2);
+        actualizarSaldoTotal(saldoTotal1Input, saldoTotal1);
+      } else if (pagina === 2) {
+        listaGastos2.appendChild(nuevoGasto);
+        saldoTotal2 += monto;
+        saldoTotal2Input.value = saldoTotal2.toFixed(2);
+        actualizarSaldoTotal(saldoTotal2Input, saldoTotal2);
+      }
     }
-
-    var gasto = {
-      concepto: concepto,
-      monto: monto,
-      imagenes: imagenes
-    };
-
-    gastos.push(gasto);
   }
 
-  // Enviar los datos mediante Ajax al archivo PHP para guardar los gastos en la base de datos MySQL
-  $.ajax({
-    url: 'guardar_gasto.php',
-    method: 'POST',
-    data: { gastos: JSON.stringify(gastos) },
-    success: function(response) {
-      // Si la respuesta del servidor es exitosa, mostrar un mensaje al usuario
-      alert('Los gastos se guardaron correctamente.');
 
-      // Actualizar el saldo total y lista de gastos si es necesario
-      // ...
-    },
-    error: function(xhr, status, error) {
-      // Si ocurrió un error en la solicitud, mostrar un mensaje de error al usuario
-      alert('Error al guardar los gastos');
-      console.log(error);
+function guardarGastos(pagina) {
+var gastos = [];
+var listaGastos;
+var saldoTotalInput;
+
+if (pagina === 1) {
+  listaGastos = listaGastos1;
+  saldoTotalInput = saldoTotal1Input;
+} else if (pagina === 2) {
+  listaGastos = listaGastos2;
+  saldoTotalInput = saldoTotal2Input;
+}
+
+var gastoItems = listaGastos.getElementsByClassName('list-group-item');
+
+for (var i = 0; i < gastoItems.length; i++) {
+  var gastoItem = gastoItems[i];
+  var concepto = gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[0];
+  var monto = parseFloat(gastoItem.getElementsByTagName('strong')[0].textContent.split(': ')[1].substring(2));
+
+  var fileContainers = gastoItem.getElementsByClassName('file-container');
+        var imagenes = [];
+
+        for (var j = 0; j < fileContainers.length; j++) {
+          var fileName = fileContainers[j].getElementsByTagName('span')[0].textContent;
+          imagenes.push(fileName);
+        }
+
+        var gasto = {
+          concepto: concepto,
+          monto: monto,
+          imagenes: imagenes
+        };
+
+        gastos.push(gasto);
+      }
+
+      // Enviar los datos mediante Ajax al archivo PHP para guardar los gastos en la base de datos MySQL
+      $.ajax({
+        url: 'guardar_gasto.php',
+        method: 'POST',
+        data: { gastos: JSON.stringify(gastos) },
+        success: function(response) {
+          // Si la respuesta del servidor es exitosa, mostrar un mensaje al usuario
+          alert('Los gastos se guardaron correctamente.');
+          // Actualizar el saldo total y lista de gastos si es necesario
+        },
+        error: function(xhr, status, error) {
+          // Si ocurrió un error en la solicitud, mostrar un mensaje de error al usuario
+          alert('Error al guardar los gastos');
+          console.log(error);
+        }
+      });
     }
-  });
-});
 
-function actualizarSaldoTotal() {
-  saldoTotal = parseFloat(saldoTotalInput.value);
-  saldoTotalInput.value = saldoTotal.toFixed(2);
+    function actualizarSaldoTotal() {
+      saldoTotal = parseFloat(saldoTotalInput.value);
+      saldoTotalInput.value = saldoTotal.toFixed(2);
 
-        if (saldoTotal < 0) {
+      if (saldoTotal < 0) {
         saldoTotalInput.style.color = 'red';
       } else {
         saldoTotalInput.style.color = 'black';
       }
     }
+
+    // Agregar evento click al botón "Agregar gasto"
+    agregarGastoBtn.addEventListener('click', function() {
+      agregarGasto(1);
+    });
+
+    // Agregar evento click al botón "Guardar gastos"
+    guardarGastosBtn.addEventListener('click', function() {
+      guardarGastos(1);
+    });
+
+    // Agregar evento click al botón "Atrás" de la página 2
+    var atrasBtn = document.getElementById('atrasBtn');
+    atrasBtn.addEventListener('click', function() {
+      cambiarPagina(1);
+    });
+
+    // Agregar evento click al botón "Siguiente" de la página 1
+    var siguienteBtn = document.getElementById('siguienteBtn');
+    siguienteBtn.addEventListener('click', function() {
+      cambiarPagina(2);
+    });
+
+    cambiarPagina(1); // Mostrar la primera página al cargar la página
 
     // Register the service worker
     if ('serviceWorker' in navigator) {
